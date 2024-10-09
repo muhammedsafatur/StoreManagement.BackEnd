@@ -1,90 +1,50 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoreManagementProject.Web.Api.Contexts;
-using StoreManagementProject.Web.Api.Models;
 using StoreManagementProject.Web.Api.Models.Dtos;
+using StoreManagementProject.Web.Api.ServiceLayer;
 
-namespace StoreManagementProject.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductsController : ControllerBase
+    private readonly IProductService _productService;
+    private readonly IMapper _mapper;
+
+    public ProductsController(IProductService productService, IMapper mapper)
     {
-        MsSqlContext msSqlContext = new MsSqlContext();
-
-        [HttpPost("Add(Yanlış yöntem categoryle birlikte ekliyor)")]
-        public IActionResult Add(Product product)
-        {
-            msSqlContext.Products.Add(product);
-            msSqlContext.SaveChanges();
-            return Ok(product);
-        }
-
-        [HttpGet("GetAll")]
-        public IActionResult GetAll()
-        {
-            // List<ProductDTO> türünde bir sonuç oluşturuyoruz
-            List<ProductDto> products = msSqlContext.Products
-                                                     .Include(p => p.Category) // Kategoriyi de dahil ediyoruz
-                                                     .Select(p => new ProductDto
-                                                     {
-                                                         
-                                                         Name = p.Name,
-                                                         Price=p.Price,
-                                                         Description=p.Description,
-                                                         CategoryId = p.CategoryId,
-                                                         CategoryName = p.Category.Name
-                                                     })
-                                                     .ToList(); // Listeyi alıyoruz
-
-            return Ok(products);
-        }
-
-
-        [HttpGet("GetById")]
-
-        public IActionResult GetById(int id)
-        {
-            // Product ile birlikte Category verisini de çekiyoruz
-            var product = msSqlContext.Products
-                                      .Include(p => p.Category) // Category bilgisini de dahil ediyoruz
-                                      .Where(p => p.Id == id)
-                                      .Select(p => new ProductDto
-                                      {
-                                          
-                                          Name = p.Name,
-                                          Description = p.Description,
-                                          Price= p.Price,
-                                          CategoryId = p.CategoryId,
-                                          CategoryName = p.Category.Name
-                                      })
-                                      .FirstOrDefault();
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(product);
-        }
-
-
-        [HttpPost("ADD(Doğru Yöntem)")]
-        public IActionResult CreateProduct([FromBody] ProductDto productDto)
-        {
-            var product = new Product
-            {
-                Name = productDto.Name,
-                Description = productDto.Description,
-                Price = (int)productDto.Price,
-                CategoryId = productDto.CategoryId // Sadece CategoryId ile ilişkilendir
-            };
-            msSqlContext.Products.Add(product);
-            msSqlContext.SaveChanges();
-            return Ok(product);
-        }
-
-
+        _productService = productService;
+        _mapper = mapper;
     }
+
+    [HttpPost("Add")]
+    public async Task<IActionResult> Add([FromBody] ProductDto productDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await _productService.AddAsync(productDto);
+        return CreatedAtAction(nameof(GetAll), productDto); // ID'yi göndermiyoruz
+    }
+
+    [HttpGet("Get All")]
+    public async Task<IActionResult> GetAll()
+    {
+        var products = await _productService.GetAllAsync();
+        return Ok(products);
+    }
+
+    [HttpGet("Find by {id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var product = await _productService.GetByIdAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+        return Ok(product);
+    }
+
+    // Diğer metodlar...
 }

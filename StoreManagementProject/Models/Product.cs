@@ -11,6 +11,7 @@ namespace StoreManagementProject.Web.Api.Models
         public string Description { get; set; }
         public int CategoryId { get; set; }
 
+        public string ImagePath { get; set; }
         public int Price { get; set; }
 
         public Category Category { get; set; }
