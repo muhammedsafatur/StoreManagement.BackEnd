@@ -20,7 +20,7 @@ Bu proje, mağaza envanterini yönetmek, satışları takip etmek, müşteri bil
 
 Bu proje aşağıdaki teknolojiler kullanılarak geliştirilmiştir:
 
-- .NET 6
+- .NET 8
 - C#
 - Entity Framework Core
 - SQL Server
@@ -43,7 +43,7 @@ Projeyi çalıştırmak için aşağıdaki adımları izleyin:
     cd StoreManagement.BackEnd
     ```
 
-3. .NET 6 SDK'sının yüklü olduğundan emin olun. Yüklü değilse, [https://dotnet.microsoft.com/download](https://dotnet.microsoft.com/download) adresinden indirebilirsiniz.
+3. .NET 8 SDK'sının yüklü olduğundan emin olun. Yüklü değilse, [https://dotnet.microsoft.com/download](https://dotnet.microsoft.com/download) adresinden indirebilirsiniz.
 
 4. Gerekli bağımlılıkları yükleyin:
 
